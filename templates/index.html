@@ -1,0 +1,81 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="flex">
+  <div class="card" style="flex:1">
+    <h2>Add Employee</h2>
+    <form method="post" action="/employees/add">
+      <input name="employee_id" placeholder="ID"><br>
+      <input name="name" placeholder="Name"><br>
+      <input name="qualification" placeholder="Qualification"><br>
+      <button type="submit">Add</button>
+    </form>
+
+    <h2>Add Client</h2>
+    <form method="post" action="/clients/add">
+      <input name="client_id" placeholder="ID"><br>
+      <input name="name" placeholder="Name"><br>
+      <input name="qualification" placeholder="Qualification"><br>
+      <input name="address" placeholder="Address"><br>
+      <input name="number" placeholder="Phone"><br>
+      <button type="submit">Add</button>
+    </form>
+
+    <h2>Add Product</h2>
+    <form method="post" action="/products/add">
+      <input name="product_id" placeholder="ID"><br>
+      <input name="name" placeholder="Name"><br>
+      <button type="submit">Add</button>
+    </form>
+  </div>
+
+  <div class="card" style="flex:2">
+    <h2>Register Complaint</h2>
+    <form method="post" action="/complaints/add" enctype="multipart/form-data">
+      <input name="complaint_id" placeholder="Complaint ID"><br>
+      <textarea name="problem" placeholder="Problem description"></textarea><br>
+      <select name="client_id">
+        <option value="">--Select client--</option>
+        {% for c in clients %}
+          <option value="{{c.client_id}}">{{c.client_id}} - {{c.name}}</option>
+        {% endfor %}
+      </select><br>
+      <select name="product_id">
+        <option value="">--Select product--</option>
+        {% for p in products %}
+          <option value="{{p.product_id}}">{{p.product_id}} - {{p.name}}</option>
+        {% endfor %}
+      </select><br>
+      <select name="assigned_employee_id">
+        <option value="">--Assign Employee--</option>
+        {% for e in employees %}
+          <option value="{{e.employee_id}}">{{e.employee_id}} - {{e.name}}</option>
+        {% endfor %}
+      </select><br>
+      <label>Attach file: <input type="file" name="attachment"></label><br>
+      <button type="submit">Register</button>
+    </form>
+
+    <h2>Existing Complaints</h2>
+    {% for comp in complaints %}
+      <div style="border-bottom:1px solid #eee;padding:8px 0">
+        <strong>{{comp.complaint_id}}</strong> — {{comp.problem}}<br>
+        Client: {{comp.client_id}} | Product: {{comp.product_id}} | Assigned: {{comp.assigned_employee_id}}<br>
+        Status: {{comp.status}} | Created: {{comp.created_at.strftime('%Y-%m-%d %H:%M')}}<br>
+        {% if comp.attachment %}
+          <a href="/uploads/{{comp.attachment}}">Download attachment</a><br>
+        {% endif %}
+        <form method="post" action="/complaints/{{comp.complaint_id}}/update">
+          <select name="status">
+            <option value="PENDING" {% if comp.status=='PENDING' %}selected{% endif %}>PENDING</option>
+            <option value="SOLVED" {% if comp.status=='SOLVED' %}selected{% endif %}>SOLVED</option>
+            <option value="NOT SOLVED" {% if comp.status=='NOT SOLVED' %}selected{% endif %}>NOT SOLVED</option>
+          </select>
+          <input name="response" placeholder="Response message" value="{{comp.response or ''}}">
+          <button type="submit">Update</button>
+        </form>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
